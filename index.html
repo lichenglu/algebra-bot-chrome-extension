@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if (
+        document.body.querySelector("math") ||
+        document.body.textContent.match(/(?:\$|\\\(|\\\[|\\begin\{.*?})/)
+      ) {
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex: {
+              inlineMath: { "[+]": [["$", "$"]] },
+            },
+          };
+        }
+        var script = document.createElement("script");
+        script.src =
+          "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+        document.head.appendChild(script);
+      }
+    </script>
+    <script src="//g.alicdn.com/chatui/icons/0.3.0/index.js"></script>
+  </body>
+</html>
