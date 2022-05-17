@@ -14,7 +14,8 @@
       "service_worker": "src/background/index.ts",
       "type": "module"
     },
-    "permissions": ["storage"],
+    "permissions": ["storage", "cookies"],
+    "host_permissions": ["https://web.algebranation.com/*"],
     "icons": {
       "48": "src/assets/logo@48.png",
       "128": "src/assets/logo@128.png"

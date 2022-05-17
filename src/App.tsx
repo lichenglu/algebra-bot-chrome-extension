@@ -92,7 +92,7 @@ function App() {
   useEffect(() => {
     chrome.storage && initState();
     return () => {
-      chrome.storage?.onChanged?.removeListener?.(handleChromeMessage);    
+      chrome.storage?.onChanged?.removeListener?.(handleStorageChange);    
     }
   }, []);
 
@@ -104,10 +104,10 @@ function App() {
     // chrome.runtime.onMessage.addListener(msgObj => {
     //   console.log('received', msgObj)
     // });
-    chrome.storage.onChanged.addListener(handleChromeMessage);
+    chrome.storage.onChanged.addListener(handleStorageChange);
   };
 
-  const handleChromeMessage = (
+  const handleStorageChange = (
     changes: { [key: string]: chrome.storage.StorageChange },
     area: string
   ) => {

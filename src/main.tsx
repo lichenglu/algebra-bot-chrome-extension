@@ -9,8 +9,8 @@ import 'antd/dist/antd.css';
 import "./index.css";
 
 // comment/uncomment to develop for extension
-// import './deps/chatui.js'
-// import './deps/mathjax.js'
+import './deps/chatui.js'
+import './deps/mathjax.js'
 
 // For mathjax
 import './assets/fonts/MathJax_Zero.woff'
