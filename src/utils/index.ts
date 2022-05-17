@@ -2,7 +2,7 @@ import { MessageProps } from "@chatui/core";
 import { protos } from "@google-cloud/dialogflow-cx";
 import { flatten } from "ramda";
 
-import { DialogFlowMessage, MessageTypes } from "../types";
+import { DialogFlowMessage, MessageTypes, BackgroundState } from "../types";
 
 export * from './constants'
 
@@ -144,4 +144,14 @@ export function findTargetDelimiter(source: string, cursorStartIndex: number) {
 
 export function replaceRange(s: string, start: number, end: number, substitute: string) {
   return s.substring(0, start) + substitute + s.substring(end);
+}
+
+export async function setBackgroundState(newData: Partial<BackgroundState>) {
+  const oldData = await chrome.storage.local.get("appState");
+  chrome.storage.local.set({
+    appState: {
+      ...oldData.appState,
+      ...newData
+    },
+  });
 }

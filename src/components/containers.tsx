@@ -1,6 +1,13 @@
 import styled from 'styled-components';
+import { Spin } from 'antd'
 
 export const AppContainer = styled.div`
+  .chatbot__authentication {
+    position: fixed;
+    bottom: calc(24px + 64px);
+    right: calc(24px + 64px);
+  }
+
   .ChatApp {
     position: fixed;
     min-height: 720px;

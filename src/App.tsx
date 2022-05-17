@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import Chat, { useMessages, MessageProps, QuickReplyItemProps } from "@chatui/core";
+import Chat, {
+  useMessages,
+  MessageProps,
+  QuickReplyItemProps,
+} from "@chatui/core";
 import { ComposerHandle } from "@chatui/core/lib/components/Composer";
-import { message, Modal } from "antd";
+import { message, Modal, Spin } from "antd";
 import { MathFieldChangeEvent, MathViewRef } from "@edpi/react-math-view";
 import styled from "styled-components";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import schnauzerImg from "./assets/schnauzer.png";
 import mockMessages from "./mock/messages.json";
@@ -13,6 +17,7 @@ import {
   MessageTypes,
   BackgroundState,
   DialogflowCustomEvents,
+  ChromeEvents,
 } from "./types";
 import { talkToAgent } from "./api";
 import {
@@ -20,10 +25,13 @@ import {
   replaceRange,
   transformDialogflowToChatUI,
   MagicCommandToEventMap,
-  EnhancedMessagePros
+  EnhancedMessagePros,
 } from "./utils";
+import { firebaseAuth } from "./services/firebase";
+
 import MathWithKeyboardButton from "./components/mathview";
 import Message from "./components/message";
+import Auth from "./components/authentication";
 import { AppContainer } from "./components/containers";
 
 const Toggle = styled.img`
@@ -72,11 +80,20 @@ const defaultQuickReplies = [
 ];
 
 let MATH_JAX_TIMER: NodeJS.Timer;
+const mockedAppState = {
+  enableChatbot: true,
+  user: {
+    uid: uuidv4(),
+  },
+};
 
 function App() {
   const { messages, appendMsg, setTyping } = useMessages([]);
 
-  const [appState, setAppState] = useState<BackgroundState>({ enableChatbot: true });
+  const [appState, setAppState] = useState<BackgroundState>(
+    chrome.runtime ? undefined : mockedAppState
+  );
+  const [loading, setLoading] = useState(false);
   const [chatboxOpen, setChatboxOpen] = useState(true);
   const [navTitle, setNavTitle] = useState("Smoky, the Algebra Bot");
   const [inputText, setInputText] = useState("");
@@ -88,15 +105,15 @@ function App() {
   }>({});
   const composerRef = useRef<ComposerHandle>();
 
-
   useEffect(() => {
     chrome.storage && initState();
     return () => {
-      chrome.storage?.onChanged?.removeListener?.(handleStorageChange);    
-    }
+      chrome.storage?.onChanged?.removeListener?.(handleStorageChange);
+    };
   }, []);
 
   const initState = async () => {
+    setLoading(true);
     const data = await chrome.storage.local.get("appState");
 
     setAppState(data.appState as BackgroundState);
@@ -105,6 +122,7 @@ function App() {
     //   console.log('received', msgObj)
     // });
     chrome.storage.onChanged.addListener(handleStorageChange);
+    setLoading(false);
   };
 
   const handleStorageChange = (
@@ -118,6 +136,8 @@ function App() {
       setAppState(changes.appState?.newValue);
     }
   };
+
+  console.log(appState)
 
   useEffect(() => {
     clearTimeout(MATH_JAX_TIMER);
@@ -135,10 +155,14 @@ function App() {
     composerRef.current?.setText(inputText);
   }, [inputText]);
 
-  const handleSend = async (type: string, val: string, event?: DialogflowCustomEvents) => {
+  const handleSend = async (
+    type: string,
+    val: string,
+    event?: DialogflowCustomEvents
+  ) => {
     if (type === MessageTypes.text && val.trim()) {
-      const postId = uuidv4()
-      
+      const postId = appState?.user?.uid;
+
       appendMsg({
         _id: postId,
         type: "text",
@@ -149,23 +173,28 @@ function App() {
       setTyping(true);
 
       // call api
-      const res = await talkToAgent({ message: val, event: event ?? MagicCommandToEventMap[val] });
-      let msgs: EnhancedMessagePros[]
-      let replyId: string
+      const res = await talkToAgent({
+        message: val,
+        event: event ?? MagicCommandToEventMap[val],
+      });
+      let msgs: EnhancedMessagePros[];
+      let replyId: string;
 
       // if success
       if (res.ok && res.data) {
-        replyId = res.data.responseId!
-        msgs = transformDialogflowToChatUI(res.data, postId);
+        replyId = res.data.responseId!;
+        msgs = transformDialogflowToChatUI(res.data, postId!);
       } else {
-        replyId = uuidv4()
-        msgs = [{
-          _id: replyId,
-          type: "text",
-          content: { text: res.originalError?.message },
-          position: "left",
-          parentId: postId
-        }]
+        replyId = uuidv4();
+        msgs = [
+          {
+            _id: replyId,
+            type: "text",
+            content: { text: res.originalError?.message },
+            position: "left",
+            parentId: postId!,
+          },
+        ];
       }
 
       msgs.forEach((msg) => appendMsg(msg));
@@ -185,7 +214,9 @@ function App() {
     );
   };
 
-  const handleQuickReplyClick = (item: { [key: string]: any } & QuickReplyItemProps) => {
+  const handleQuickReplyClick = (
+    item: { [key: string]: any } & QuickReplyItemProps
+  ) => {
     handleSend("text", item.code ?? item.name, item.event);
   };
 
@@ -242,9 +273,14 @@ function App() {
     setMathviewModalOpen(false);
   };
 
+  if (!appState) {
+    return null;
+  }
+
   return appState?.enableChatbot ? (
     <AppContainer>
-      {chatboxOpen && (
+      {!appState.user && <Auth />}
+      {appState.user && chatboxOpen && (
         <Chat
           navbar={{ title: navTitle }}
           messages={messages}
@@ -294,7 +330,12 @@ function App() {
       </Modal>
       <Toggle
         src={chrome.runtime?.getURL(schnauzerImg) ?? schnauzerImg}
-        onClick={() => setChatboxOpen(!chatboxOpen)}
+        onClick={() => {
+          if (!appState.user) {
+            return;
+          }
+          setChatboxOpen(!chatboxOpen);
+        }}
       />
     </AppContainer>
   ) : null;

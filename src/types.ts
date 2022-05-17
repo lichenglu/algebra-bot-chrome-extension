@@ -34,6 +34,10 @@ export interface MessagePayload {
   parameters: { [key: string]: any };
 }
 
+import {
+  User
+} from "firebase/auth";
+
 export enum MessageTypes {
   text = "text",
   button = "button",
@@ -46,15 +50,27 @@ export enum MessageTypes {
 }
 
 export interface BackgroundState {
-  enableChatbot: boolean
+  enableChatbot: boolean;
+  user?: User;
+  algebraNationData?: {
+    useraccountId?: string;
+    fallbackUseraccountId?: string
+  }
 }
 
 export enum ChromeEvents {
-  changeAppState = 'changeAppState'
+  changeAppState = 'changeAppState',
+  login = 'login',
+  writeDataToDB = 'writeDataToDB'
 }
 export interface ChromeMessage {
   type: ChromeEvents;
-  payload: any
+  payload: FirebaseWritePayload | string
+}
+
+export interface FirebaseWritePayload {
+  field: 'profile' | 'messages' | 'logs',
+  data: any
 }
 
 export enum DialogflowCustomEvents {

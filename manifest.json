@@ -1,23 +1,31 @@
 {
-    "manifest_version": 3,
-    "name": "Algebra Nation Bot",
-    "version": "1.0.0",
-    "action": { "default_popup": "popup.html" },
-    "content_scripts": [{
+  "manifest_version": 3,
+  "name": "Algebra Nation Bot",
+  "version": "1.0.0",
+  "action": { "default_popup": "popup.html" },
+  "content_scripts": [
+    {
       "js": ["src/main.tsx"],
-      "matches": [
-        "https://www.google.com/*",
-        "https://web.algebranation.com/*"
-      ]
-    }],
-    "background": {
-      "service_worker": "src/background/index.ts",
-      "type": "module"
-    },
-    "permissions": ["storage", "cookies"],
-    "host_permissions": ["https://web.algebranation.com/*"],
-    "icons": {
-      "48": "src/assets/logo@48.png",
-      "128": "src/assets/logo@128.png"
+      "matches": ["https://www.google.com/*", "https://web.algebranation.com/*"]
     }
+  ],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "permissions": ["storage", "cookies", "identity", "identity.email"],
+  "host_permissions": ["https://web.algebranation.com/*"],
+  "icons": {
+    "48": "src/assets/logo@48.png",
+    "128": "src/assets/logo@128.png"
+  },
+  "oauth2": {
+    "client_id": "527461837254-dlhjaumomrjfhjc13inuhvj0i7bt7njt.apps.googleusercontent.com",
+    "scopes": [
+      "profile",
+      "email",
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
   }
+}
