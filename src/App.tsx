@@ -4,6 +4,7 @@ import { ComposerHandle } from "@chatui/core/lib/components/Composer";
 import { message, Modal } from "antd";
 import { MathFieldChangeEvent, MathViewRef } from "@edpi/react-math-view";
 import styled from "styled-components";
+import { v4 as uuidv4 } from 'uuid';
 
 import schnauzerImg from "./assets/schnauzer.png";
 import mockMessages from "./mock/messages.json";
@@ -18,7 +19,8 @@ import {
   findTargetDelimiter,
   replaceRange,
   transformDialogflowToChatUI,
-  MagicCommandToEventMap
+  MagicCommandToEventMap,
+  EnhancedMessagePros
 } from "./utils";
 import MathWithKeyboardButton from "./components/mathview";
 import Message from "./components/message";
@@ -135,7 +137,10 @@ function App() {
 
   const handleSend = async (type: string, val: string, event?: DialogflowCustomEvents) => {
     if (type === MessageTypes.text && val.trim()) {
+      const postId = uuidv4()
+      
       appendMsg({
+        _id: postId,
         type: "text",
         content: { text: val },
         position: "right",
@@ -145,10 +150,25 @@ function App() {
 
       // call api
       const res = await talkToAgent({ message: val, event: event ?? MagicCommandToEventMap[val] });
+      let msgs: EnhancedMessagePros[]
+      let replyId: string
+
+      // if success
       if (res.ok && res.data) {
-        const msgs = transformDialogflowToChatUI(res.data);
-        msgs.forEach((msg) => appendMsg(msg));
+        replyId = res.data.responseId!
+        msgs = transformDialogflowToChatUI(res.data, postId);
+      } else {
+        replyId = uuidv4()
+        msgs = [{
+          _id: replyId,
+          type: "text",
+          content: { text: res.originalError?.message },
+          position: "left",
+          parentId: postId
+        }]
       }
+
+      msgs.forEach((msg) => appendMsg(msg));
 
       setTyping(false);
     }

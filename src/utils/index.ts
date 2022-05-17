@@ -6,11 +6,16 @@ import { DialogFlowMessage, MessageTypes } from "../types";
 
 export * from './constants'
 
+export interface EnhancedMessagePros extends MessageProps {
+  parentId: string
+}
+
 export const transformDialogflowToChatUI = (
-  response: protos.google.cloud.dialogflow.cx.v3.IDetectIntentResponse
-): MessageProps[] => {
+  response: protos.google.cloud.dialogflow.cx.v3.IDetectIntentResponse,
+  parentId: string
+): EnhancedMessagePros[] => {
   const id = response.responseId!;
-  return flatten<MessageProps[][][]>(
+  return flatten<EnhancedMessagePros[][][]>(
     // @ts-ignore
     response.queryResult?.responseMessages?.map((msg, idx) => {
       if (msg.text) {
@@ -21,6 +26,7 @@ export const transformDialogflowToChatUI = (
             text: msg.text.text?.[0],
           },
           position: "left",
+          parentId
         };
       }
 
@@ -49,6 +55,7 @@ export const transformDialogflowToChatUI = (
                     }),
                   },
                   position: "left",
+                  parentId
                 };
               }
 
@@ -76,6 +83,7 @@ export const transformDialogflowToChatUI = (
                   event: content.event,
                 },
                 position: "left",
+                parentId
               };
             });
           }
