@@ -10,6 +10,10 @@
         "https://web.algebranation.com/*"
       ]
     }],
+    "background": {
+      "service_worker": "src/background/index.ts",
+      "type": "module"
+    },
     "permissions": ["storage"],
     "icons": {
       "48": "src/assets/logo@48.png",

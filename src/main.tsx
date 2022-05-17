@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import App from "./App";
 
 import "@chatui/core/dist/index.css";
@@ -7,7 +8,7 @@ import 'antd/dist/antd.css';
 
 import "./index.css";
 
-// uncomment to develop for extension
+// comment/uncomment to develop for extension
 // import './deps/chatui.js'
 // import './deps/mathjax.js'
 

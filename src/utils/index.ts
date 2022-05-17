@@ -4,6 +4,8 @@ import { flatten } from "ramda";
 
 import { DialogFlowMessage, MessageTypes } from "../types";
 
+export * from './constants'
+
 export const transformDialogflowToChatUI = (
   response: protos.google.cloud.dialogflow.cx.v3.IDetectIntentResponse
 ): MessageProps[] => {
@@ -25,8 +27,8 @@ export const transformDialogflowToChatUI = (
       if (msg.payload) {
         // @ts-ignore
         return msg.payload.richContent.map(
-          (richContent: DialogFlowMessage[], idx2) => {
-            return richContent.map((content, idx3) => {
+          (richContent: DialogFlowMessage[], idx2: number) => {
+            return richContent.map((content, idx3: number) => {
               if (!content) {
                 return undefined;
               }
@@ -58,7 +60,7 @@ export const transformDialogflowToChatUI = (
                   items: Array.isArray(content.text)
                     ? content.text
                     : content.items
-                    ? content.items.map((item, idx4) => ({
+                    ? content.items.map((item, idx4: number) => ({
                         _id: `${id}_${idx}_${idx2}_${idx3}_${idx4}`,
                         type: content.type,
                         text: item.title ?? item.text,
@@ -80,11 +82,7 @@ export const transformDialogflowToChatUI = (
         );
       }
 
-      return {
-        _id: id,
-        type: MessageTypes.text,
-        position: "left",
-      };
+      return undefined;
     })
   ).filter((msg) => !!msg);
 };

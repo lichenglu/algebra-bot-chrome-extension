@@ -12,7 +12,7 @@ export default defineConfig({
       // add any html pages here
       input: {
         // output file at '/index.html'
-        // welcome: resolve(__dirname, './src/popup/index.html'),
+        popup: resolve(__dirname, 'popup.html'),
       },
     },
   },

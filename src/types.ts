@@ -44,3 +44,19 @@ export enum MessageTypes {
   accordion = "accordion",
   chips = "chips",
 }
+
+export interface BackgroundState {
+  enableChatbot: boolean
+}
+
+export enum ChromeEvents {
+  changeAppState = 'changeAppState'
+}
+export interface ChromeMessage {
+  type: ChromeEvents;
+  payload: any
+}
+
+export enum DialogflowCustomEvents {
+  endSession = 'custom.end_session'
+}

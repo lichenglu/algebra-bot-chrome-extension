@@ -32,7 +32,7 @@ export interface MessageProps extends ChatMessageProps {
 const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
   const { content, type, position } = msg;
   let contentComponent;
-
+  
   switch (type) {
     case MessageTypes.text:
       contentComponent = <Bubble content={content.text} />;

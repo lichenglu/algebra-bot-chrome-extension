@@ -1,19 +1,28 @@
 import React, { useEffect, useState, useRef } from "react";
-import Chat, { useMessages, MessageProps } from "@chatui/core";
+import Chat, { useMessages, MessageProps, QuickReplyItemProps } from "@chatui/core";
 import { ComposerHandle } from "@chatui/core/lib/components/Composer";
-import { Modal } from "antd";
+import { message, Modal } from "antd";
 import { MathFieldChangeEvent, MathViewRef } from "@edpi/react-math-view";
 import styled from "styled-components";
 
 import schnauzerImg from "./assets/schnauzer.png";
 import mockMessages from "./mock/messages.json";
 
-import { MessageTypes } from "./types";
+import {
+  MessageTypes,
+  BackgroundState,
+  DialogflowCustomEvents,
+} from "./types";
 import { talkToAgent } from "./api";
-import { findTargetDelimiter, replaceRange, transformDialogflowToChatUI } from "./utils";
+import {
+  findTargetDelimiter,
+  replaceRange,
+  transformDialogflowToChatUI,
+  MagicCommandToEventMap
+} from "./utils";
 import MathWithKeyboardButton from "./components/mathview";
 import Message from "./components/message";
-import { AppContainer } from './components/containers'
+import { AppContainer } from "./components/containers";
 
 const Toggle = styled.img`
   width: 64px;
@@ -42,6 +51,18 @@ const defaultQuickReplies = [
     isHighlight: true,
   },
   {
+    icon: "bullhorn",
+    name: "Summarize",
+    isHighlight: true,
+  },
+  {
+    icon: "cancel",
+    code: "/exit",
+    name: "Reset Conversation",
+    event: DialogflowCustomEvents.endSession,
+    isHighlight: true,
+  },
+  {
     icon: "smile",
     name: "Joke",
     isHighlight: true,
@@ -51,6 +72,9 @@ const defaultQuickReplies = [
 let MATH_JAX_TIMER: NodeJS.Timer;
 
 function App() {
+  const { messages, appendMsg, setTyping } = useMessages([]);
+
+  const [appState, setAppState] = useState<BackgroundState>({ enableChatbot: true });
   const [chatboxOpen, setChatboxOpen] = useState(true);
   const [navTitle, setNavTitle] = useState("Smoky, the Algebra Bot");
   const [inputText, setInputText] = useState("");
@@ -62,7 +86,36 @@ function App() {
   }>({});
   const composerRef = useRef<ComposerHandle>();
 
-  const { messages, appendMsg, setTyping } = useMessages(mockMessages);
+
+  useEffect(() => {
+    chrome.storage && initState();
+    return () => {
+      chrome.storage?.onChanged?.removeListener?.(handleChromeMessage);    
+    }
+  }, []);
+
+  const initState = async () => {
+    const data = await chrome.storage.local.get("appState");
+
+    setAppState(data.appState as BackgroundState);
+
+    // chrome.runtime.onMessage.addListener(msgObj => {
+    //   console.log('received', msgObj)
+    // });
+    chrome.storage.onChanged.addListener(handleChromeMessage);
+  };
+
+  const handleChromeMessage = (
+    changes: { [key: string]: chrome.storage.StorageChange },
+    area: string
+  ) => {
+    if (
+      changes.appState &&
+      changes.appState?.newValue !== changes.appState?.oldValue
+    ) {
+      setAppState(changes.appState?.newValue);
+    }
+  };
 
   useEffect(() => {
     clearTimeout(MATH_JAX_TIMER);
@@ -80,8 +133,7 @@ function App() {
     composerRef.current?.setText(inputText);
   }, [inputText]);
 
-  const handleSend = async (type: string, val: string) => {
-    console.log(type);
+  const handleSend = async (type: string, val: string, event?: DialogflowCustomEvents) => {
     if (type === MessageTypes.text && val.trim()) {
       appendMsg({
         type: "text",
@@ -92,7 +144,7 @@ function App() {
       setTyping(true);
 
       // call api
-      const res = await talkToAgent({ message: val });
+      const res = await talkToAgent({ message: val, event: event ?? MagicCommandToEventMap[val] });
       if (res.ok && res.data) {
         const msgs = transformDialogflowToChatUI(res.data);
         msgs.forEach((msg) => appendMsg(msg));
@@ -113,8 +165,8 @@ function App() {
     );
   };
 
-  const handleQuickReplyClick = (item: any) => {
-    handleSend("text", item.name);
+  const handleQuickReplyClick = (item: { [key: string]: any } & QuickReplyItemProps) => {
+    handleSend("text", item.code ?? item.name, item.event);
   };
 
   const handleInputFieldClick = (e: React.MouseEvent<HTMLInputElement>) => {
@@ -170,7 +222,7 @@ function App() {
     setMathviewModalOpen(false);
   };
 
-  return (
+  return appState?.enableChatbot ? (
     <AppContainer>
       {chatboxOpen && (
         <Chat
@@ -220,9 +272,12 @@ function App() {
           />
         </div>
       </Modal>
-      <Toggle src={chrome.runtime?.getURL(schnauzerImg) ?? schnauzerImg} onClick={() => setChatboxOpen(!chatboxOpen)}/>
+      <Toggle
+        src={chrome.runtime?.getURL(schnauzerImg) ?? schnauzerImg}
+        onClick={() => setChatboxOpen(!chatboxOpen)}
+      />
     </AppContainer>
-  );
+  ) : null;
 }
 
 export default App;
