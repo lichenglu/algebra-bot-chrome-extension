@@ -61,11 +61,16 @@ export interface BackgroundState {
 export enum ChromeEvents {
   changeAppState = 'changeAppState',
   login = 'login',
+  loginError = 'loginError',
   writeDataToDB = 'writeDataToDB'
 }
-export interface ChromeMessage {
+export interface ChromeMessage<Payload = any> {
   type: ChromeEvents;
-  payload: FirebaseWritePayload | string
+  payload: Payload
+}
+
+export interface ErrorMessagePayload {
+  message: string
 }
 
 export interface FirebaseWritePayload {

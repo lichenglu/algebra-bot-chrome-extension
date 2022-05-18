@@ -43,7 +43,7 @@ const MathWithKeyboardButton = React.memo((props: MathViewProps) => {
         onChange={onChange}
         className="my-mathview"
         ref={ref}
-        fontsDirectory={chrome.runtime?.getURL?.('./src/assets/fonts')}
+        fontsDirectory={chrome.runtime?.getURL?.('src/assets/fonts')}
         customVirtualKeyboardLayers={HIGH_SCHOOL_KEYBOARD_LAYER}
         customVirtualKeyboards={HIGH_SCHOOL_KEYBOARD}
         virtualKeyboards={"high-school-keyboard"}

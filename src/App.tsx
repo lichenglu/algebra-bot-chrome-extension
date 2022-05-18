@@ -80,7 +80,7 @@ const defaultQuickReplies = [
 ];
 
 let MATH_JAX_TIMER: NodeJS.Timer;
-const mockedAppState = {
+const MOCKED_APP_STATE: BackgroundState = {
   enableChatbot: true,
   user: {
     uid: uuidv4(),
@@ -88,10 +88,10 @@ const mockedAppState = {
 };
 
 function App() {
-  const { messages, appendMsg, setTyping } = useMessages([]);
+  const { messages, appendMsg, setTyping } = useMessages(mockMessages);
 
-  const [appState, setAppState] = useState<BackgroundState>(
-    chrome.runtime ? undefined : mockedAppState
+  const [appState, setAppState] = useState<BackgroundState | undefined>(
+    chrome.runtime ? undefined : MOCKED_APP_STATE
   );
   const [loading, setLoading] = useState(false);
   const [chatboxOpen, setChatboxOpen] = useState(true);
@@ -294,6 +294,7 @@ function App() {
           }}
           onInputChange={(value, e) => setInputText(value)}
           placeholder="Ask me anything!"
+          loadMoreText="Load More"
           // @ts-ignore
           composerRef={composerRef}
         />
