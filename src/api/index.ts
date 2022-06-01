@@ -6,6 +6,6 @@ const api = create({
   baseURL: import.meta.env.VITE_SERVER_BASE_URL,
 })
 
-export const talkToAgent = ({ message, event }: { message: string, event?: string }) => {
-    return api.post<protos.google.cloud.dialogflow.cx.v3.IDetectIntentResponse>('/chatbot/detectIntentByText', { message, event })
+export const talkToAgent = ({ message, event, userID }: { message: string, event?: string, userID?: string }) => {
+    return api.post<protos.google.cloud.dialogflow.cx.v3.IDetectIntentResponse>('/chatbot/detectIntentByText', { message, event, userID })
 }

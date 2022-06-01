@@ -176,7 +176,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
   return (
     <Flex direction={isChatbot ? "row" : "row-reverse"}>
       {isChatbot ? (
-        <Avatar style={avatarStle} src={chrome.runtime?.getURL(schnauzerImg) ?? schnauzerImg} size={40} />
+        <Avatar style={avatarStle} src={chrome.runtime?.getURL?.(schnauzerImg) ?? schnauzerImg} size={40} />
       ) : (
         <Avatar style={avatarStle} size={40}>
           You

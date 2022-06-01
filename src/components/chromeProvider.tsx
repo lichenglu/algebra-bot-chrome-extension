@@ -16,12 +16,14 @@ const MOCKED_APP_STATE: BackgroundState = {
 };
 
 export const ChromeContext = React.createContext<BackgroundState | undefined>(
-  chrome.runtime ? undefined : MOCKED_APP_STATE
+  chrome.storage ? undefined : MOCKED_APP_STATE
 );
 
-const ChromeProvider: React.FC<{ children?: React.ReactNode; }> = ({ children }) => {
+const ChromeProvider: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => {
   const [appState, setAppState] = useState<BackgroundState | undefined>(
-    chrome.runtime ? undefined : MOCKED_APP_STATE
+    chrome.storage ? undefined : MOCKED_APP_STATE
   );
 
   useEffect(() => {
@@ -59,4 +61,4 @@ const ChromeProvider: React.FC<{ children?: React.ReactNode; }> = ({ children })
   );
 };
 
-export default ChromeProvider
+export default ChromeProvider;

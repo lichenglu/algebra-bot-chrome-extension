@@ -37,9 +37,15 @@ export const AppContainer = styled.div`
     .CardTitle-title {
       font-size: 18px;
     }
+
+    .Navbar {
+      background-color: #383838;
+      border-radius: 5px 5px 0 0;
+    }
     
     .Navbar-title {
       font-size: 18px;
+      color: #fcfcfc;
     }
 
     .QuickReply {

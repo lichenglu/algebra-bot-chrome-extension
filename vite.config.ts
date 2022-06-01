@@ -28,7 +28,7 @@ export default defineConfig({
     //     }
     //   ]
     // }),
-    crx({ manifest }),
+    // crx({ manifest }),
   ],
   css: {
     preprocessorOptions: {

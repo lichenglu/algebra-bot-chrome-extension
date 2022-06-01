@@ -48,12 +48,11 @@ const Toggle = styled.img`
 let MATH_JAX_TIMER: NodeJS.Timer;
 
 function App() {
-  const { messages, appendMsg, setTyping } = useMessages(mockMessages);
+  const { messages, appendMsg, setTyping } = useMessages([]);
   const appState = useContext(ChromeContext)
 
-  const [loading, setLoading] = useState(false);
   const [chatboxOpen, setChatboxOpen] = useState(true);
-  const [navTitle, setNavTitle] = useState("Smoky, the Algebra Bot");
+  const [navTitle, setNavTitle] = useState("Smoky, the Algebra Bot 🤖");
   const [inputText, setInputText] = useState("");
   const [mathviewModalOpen, setMathviewModalOpen] = useState(false);
 
@@ -62,10 +61,6 @@ function App() {
     value?: string;
   }>({});
   const composerRef = useRef<ComposerHandle>();
-
-  useEffect(() => {
-
-  }, []);
 
   useEffect(() => {
     clearTimeout(MATH_JAX_TIMER);
@@ -104,6 +99,7 @@ function App() {
       const res = await talkToAgent({
         message: val,
         event: event ?? MagicCommandToEventMap[val],
+        userID: appState?.user?.uid
       });
       let msgs: EnhancedMessagePros[];
       let replyId: string;
@@ -202,6 +198,7 @@ function App() {
   };
 
   console.log('appState', appState)
+  
   if (!appState || !appState.enableChatbot) {
     return null;
   }
@@ -259,7 +256,7 @@ function App() {
         </div>
       </Modal>
       <Toggle
-        src={chrome.runtime?.getURL(schnauzerImg) ?? schnauzerImg}
+        src={chrome.runtime?.getURL?.(schnauzerImg) ?? schnauzerImg}
         onClick={() => {
           if (!appState.user) {
             return;
