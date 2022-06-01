@@ -1,3 +1,8 @@
+import {
+  User
+} from "firebase/auth";
+import { QuickReplyItemProps } from '@chatui/core'
+
 export interface DialogFlowMessage {
   type: MessageTypes;
   text?: string | string[];
@@ -34,9 +39,9 @@ export interface MessagePayload {
   parameters: { [key: string]: any };
 }
 
-import {
-  User
-} from "firebase/auth";
+export interface CustomQuickReplyItemProps extends QuickReplyItemProps {
+  event?: DialogflowCustomEvents
+}
 
 export enum MessageTypes {
   text = "text",
@@ -51,7 +56,7 @@ export enum MessageTypes {
 
 export interface BackgroundState {
   enableChatbot: boolean;
-  user?: User;
+  user?: User | null;
   algebraNationData?: {
     useraccountId?: string;
     fallbackUseraccountId?: string

@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
+import ChromeProvider from './components/chromeProvider'
 import App from "./App";
 
 import "@chatui/core/dist/index.css";
@@ -26,6 +27,8 @@ document.body.append(root);
 // content script entry
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <App />
+    <ChromeProvider>
+      <App />
+    </ChromeProvider>
   </React.StrictMode>
 );

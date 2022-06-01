@@ -2,7 +2,8 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
   signOut,
-  AuthError
+  AuthError,
+  User
 } from "firebase/auth";
 import {
   ref,
@@ -13,11 +14,11 @@ import {
   serverTimestamp,
 } from "firebase/database";
 
-import { firebaseAuth, firebaseDB } from "../services/firebase";
-import { ChromeMessage, ChromeEvents, FirebaseWritePayload } from "../types";
-import { setBackgroundState } from "../utils";
+import { firebaseAuth, firebaseDB } from "@/services/firebase";
+import { ChromeMessage, ChromeEvents, FirebaseWritePayload } from "@/types";
+import { setBackgroundState } from "@/utils";
 
-const saveDataOfFieldToUser = async (
+const saveOrUpdateDataOfFieldToUser = async (
   userId: string | undefined,
   field: string,
   data: any
@@ -88,17 +89,22 @@ chrome.runtime.onConnect.addListener(async () => {
       await extractUserAccountId();
 
     if (user) {
-      saveDataOfFieldToUser(user.uid, "profile", {
+      saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
         ...user.toJSON(),
-        algebraNationData: {
-          useraccountId,
-          fallbackUseraccountId,
-        },
       });
+      
+      if (useraccountId.trim()) {
+        saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
+          algebraNationData: {
+            useraccountId,
+            fallbackUseraccountId,
+          },
+        });
+      }
     }
 
     await setBackgroundState({
-      user: user?.toJSON?.() ?? null,
+      user: (user?.toJSON?.() as User) ?? null,
       algebraNationData: {
         useraccountId,
         fallbackUseraccountId,
@@ -134,6 +140,6 @@ chrome.runtime.onMessage.addListener(async (message: ChromeMessage) => {
   if (message.type === ChromeEvents.writeDataToDB) {
     const { field, data } = message.payload as FirebaseWritePayload;
     const userId = firebaseAuth.currentUser?.uid;
-    saveDataOfFieldToUser(userId, field, data);
+    saveOrUpdateDataOfFieldToUser(userId, field, data);
   }
 });

@@ -4,7 +4,7 @@ import { crx } from "@crxjs/vite-plugin";
 import vitePluginImp from 'vite-plugin-imp'
 import { resolve } from "path";
 
-import manifest from "./manifest.json";
+import manifest from "./manifest";
 
 export default defineConfig({
   build: {
@@ -36,6 +36,11 @@ export default defineConfig({
         javascriptEnabled: true, // 支持内联 JavaScript
       }
     }
+  },
+  resolve:{
+    alias:{
+      '@' : resolve(__dirname, './src')
+    },
   },
   server: {
     port: 3001

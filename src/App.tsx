@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import Chat, {
   useMessages,
   MessageProps,
@@ -15,9 +15,7 @@ import mockMessages from "./mock/messages.json";
 
 import {
   MessageTypes,
-  BackgroundState,
   DialogflowCustomEvents,
-  ChromeEvents,
 } from "./types";
 import { talkToAgent } from "./api";
 import {
@@ -26,6 +24,7 @@ import {
   transformDialogflowToChatUI,
   MagicCommandToEventMap,
   EnhancedMessagePros,
+  DEFAULT_QUICK_REPLIES
 } from "./utils";
 import { firebaseAuth } from "./services/firebase";
 
@@ -33,6 +32,7 @@ import MathWithKeyboardButton from "./components/mathview";
 import Message from "./components/message";
 import Auth from "./components/authentication";
 import { AppContainer } from "./components/containers";
+import { ChromeContext } from "./components/chromeProvider";
 
 const Toggle = styled.img`
   width: 64px;
@@ -44,55 +44,13 @@ const Toggle = styled.img`
   cursor: pointer;
 `;
 
-const defaultQuickReplies = [
-  {
-    icon: "message",
-    name: "Help",
-    isHighlight: true,
-  },
-  {
-    icon: "compass",
-    name: "Solve/simplify",
-    isHighlight: true,
-  },
-  {
-    icon: "search",
-    name: "Recommend",
-    isHighlight: true,
-  },
-  {
-    icon: "bullhorn",
-    name: "Summarize",
-    isHighlight: true,
-  },
-  {
-    icon: "cancel",
-    code: "/exit",
-    name: "Reset Conversation",
-    event: DialogflowCustomEvents.endSession,
-    isHighlight: true,
-  },
-  {
-    icon: "smile",
-    name: "Joke",
-    isHighlight: true,
-  },
-];
 
 let MATH_JAX_TIMER: NodeJS.Timer;
-const MOCKED_APP_STATE: BackgroundState = {
-  enableChatbot: true,
-  user: {
-    uid: uuidv4(),
-  },
-};
 
 function App() {
   const { messages, appendMsg, setTyping } = useMessages(mockMessages);
+  const appState = useContext(ChromeContext)
 
-  const [appState, setAppState] = useState<BackgroundState | undefined>(
-    chrome.runtime ? undefined : MOCKED_APP_STATE
-  );
   const [loading, setLoading] = useState(false);
   const [chatboxOpen, setChatboxOpen] = useState(true);
   const [navTitle, setNavTitle] = useState("Smoky, the Algebra Bot");
@@ -106,38 +64,8 @@ function App() {
   const composerRef = useRef<ComposerHandle>();
 
   useEffect(() => {
-    chrome.storage && initState();
-    return () => {
-      chrome.storage?.onChanged?.removeListener?.(handleStorageChange);
-    };
+
   }, []);
-
-  const initState = async () => {
-    setLoading(true);
-    const data = await chrome.storage.local.get("appState");
-
-    setAppState(data.appState as BackgroundState);
-
-    // chrome.runtime.onMessage.addListener(msgObj => {
-    //   console.log('received', msgObj)
-    // });
-    chrome.storage.onChanged.addListener(handleStorageChange);
-    setLoading(false);
-  };
-
-  const handleStorageChange = (
-    changes: { [key: string]: chrome.storage.StorageChange },
-    area: string
-  ) => {
-    if (
-      changes.appState &&
-      changes.appState?.newValue !== changes.appState?.oldValue
-    ) {
-      setAppState(changes.appState?.newValue);
-    }
-  };
-
-  console.log(appState)
 
   useEffect(() => {
     clearTimeout(MATH_JAX_TIMER);
@@ -273,11 +201,12 @@ function App() {
     setMathviewModalOpen(false);
   };
 
-  if (!appState) {
+  console.log('appState', appState)
+  if (!appState || !appState.enableChatbot) {
     return null;
   }
 
-  return appState?.enableChatbot ? (
+  return (
     <AppContainer>
       {!appState.user && <Auth />}
       {appState.user && chatboxOpen && (
@@ -286,7 +215,7 @@ function App() {
           messages={messages}
           renderMessageContent={renderMessageContent}
           onSend={handleSend}
-          quickReplies={defaultQuickReplies}
+          quickReplies={DEFAULT_QUICK_REPLIES}
           onQuickReplyClick={handleQuickReplyClick}
           locale="en-US"
           inputOptions={{
@@ -339,7 +268,7 @@ function App() {
         }}
       />
     </AppContainer>
-  ) : null;
+  )
 }
 
 export default App;
