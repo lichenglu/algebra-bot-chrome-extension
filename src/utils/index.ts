@@ -2,7 +2,7 @@ import { MessageProps } from "@chatui/core";
 import { protos } from "@google-cloud/dialogflow-cx";
 import { flatten } from "ramda";
 
-import { DialogFlowMessage, MessageTypes, BackgroundState } from "../types";
+import { DialogFlowMessage, DialogFlowChipOption, DialogFlowSearchOption, MessageTypes, BackgroundState } from "../types";
 
 export * from './constants'
 
@@ -20,7 +20,7 @@ export const transformDialogflowToChatUI = (
     response.queryResult?.responseMessages?.map((msg, idx) => {
       if (msg.text) {
         return {
-          _id: `${id}_${idx}`,
+          _id: `${id}_${idx}_${MessageTypes.text}`,
           type: MessageTypes.text,
           content: {
             text: msg.text.text?.[0],
@@ -41,15 +41,41 @@ export const transformDialogflowToChatUI = (
 
               if (content.options && content.type === MessageTypes.chips) {
                 return {
-                  _id: `${id}_${idx}_${idx2}_${idx3}`,
+                  _id: `${id}_${idx}_${idx2}_${idx3}_${content.type}`,
                   type: content.type,
                   content: {
                     items: content.options.map((opt, idx4) => {
+                      const _opt = opt as DialogFlowChipOption
                       return {
-                        _id: `${id}_${idx}_${idx2}_${idx3}_${idx4}`,
-                        text: opt.text,
-                        actionLink: opt.link,
-                        imgUrl: opt.image?.src,
+                        _id: `${id}_${idx}_${idx2}_${idx3}_${idx4}_${content.type}`,
+                        text: _opt.text,
+                        actionLink: _opt.link,
+                        imgUrl: _opt.image?.src,
+                        position: "left",
+                      };
+                    }),
+                  },
+                  position: "left",
+                  parentId
+                };
+              }
+
+              if (content.options && content.type === MessageTypes.search) {
+                return {
+                  _id: `${id}_${idx}_${idx2}_${idx3}_${content.type}`,
+                  type: content.type,
+                  content: {
+                    items: content.options.map((opt, idx4) => {
+                      const _opt = opt as DialogFlowSearchOption
+                      return {
+                        _id: `${id}_${idx}_${idx2}_${idx3}_${idx4}_${content.type}`,
+                        score: _opt.score,
+                        text: _opt.metadata.text,
+                        topicName: _opt.metadata.name,
+                        section: _opt.metadata.section,
+                        videoId: _opt.metadata.videoId,
+                        startTime: _opt.metadata.startTime,
+                        actionLink: `https://web.algebranation.com/video/${_opt.metadata.videoId}`,
                         position: "left",
                       };
                     }),
@@ -60,7 +86,7 @@ export const transformDialogflowToChatUI = (
               }
 
               return {
-                _id: `${id}_${idx}_${idx2}_${idx3}`,
+                _id: `${id}_${idx}_${idx2}_${idx3}_${content.type}`,
                 type: content.type,
                 content: {
                   text: content.title ?? content.text,
@@ -68,7 +94,7 @@ export const transformDialogflowToChatUI = (
                     ? content.text
                     : content.items
                     ? content.items.map((item, idx4: number) => ({
-                        _id: `${id}_${idx}_${idx2}_${idx3}_${idx4}`,
+                        _id: `${id}_${idx}_${idx2}_${idx3}_${idx4}_${content.type}`,
                         type: content.type,
                         text: item.title ?? item.text,
                         actionLink: item.actionLink ?? item.link,
@@ -154,4 +180,22 @@ export async function setBackgroundState(newData: Partial<BackgroundState>) {
       ...newData
     },
   });
+}
+
+export function injectScript(file: string, node: string) {
+  var th = document.getElementsByTagName(node)[0];
+  var s = document.createElement('script');
+  s.setAttribute('type', 'text/javascript');
+  s.setAttribute('src', file);
+  th.appendChild(s);
+}
+
+export function convertMS(sec: number) {
+  let hours   = Math.floor(sec / 3600); // get hours
+  let minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
+  let seconds = Math.floor(sec - (hours * 3600) - (minutes * 60)); //  get seconds
+  // add 0 if value < 10; Example: 2 => 02
+  if (minutes < 10) {minutes = "0"+minutes.toFixed(0);}
+  if (seconds < 10) {seconds = "0"+seconds.toFixed(0);}
+  return minutes+':'+seconds; // Return is HH : MM : SS
 }

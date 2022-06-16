@@ -1,21 +1,32 @@
-import {
-  User
-} from "firebase/auth";
-import { QuickReplyItemProps } from '@chatui/core'
+import { User } from "firebase/auth";
+import { QuickReplyItemProps } from "@chatui/core";
 
+export interface DialogFlowChipOption {
+  text: string;
+  link: string;
+  image: {
+    src: {
+      rawUrl: string;
+    };
+  };
+}
+
+export interface DialogFlowSearchOption {
+  score: number;
+  metadata: {
+    endTime: number;
+    startTime: number;
+    name: string;
+    section: string;
+    text: string;
+    videoId: number;
+  };
+}
 export interface DialogFlowMessage {
   type: MessageTypes;
   text?: string | string[];
   items?: any[];
-  options?: {
-    text: string
-    link: string
-    image: {
-      src: {
-        rawUrl: string
-      },
-    },
-  }[]
+  options?: (DialogFlowChipOption | DialogFlowSearchOption)[];
   title?: string;
   subtitle?: string;
   actionLink?: string;
@@ -40,7 +51,7 @@ export interface MessagePayload {
 }
 
 export interface CustomQuickReplyItemProps extends QuickReplyItemProps {
-  event?: DialogflowCustomEvents
+  event?: DialogflowCustomEvents;
 }
 
 export enum MessageTypes {
@@ -52,6 +63,7 @@ export enum MessageTypes {
   list = "list",
   accordion = "accordion",
   chips = "chips",
+  search = "search",
 }
 
 export interface BackgroundState {
@@ -59,30 +71,31 @@ export interface BackgroundState {
   user?: User | null;
   algebraNationData?: {
     useraccountId?: string;
-    fallbackUseraccountId?: string
-  }
+    fallbackUseraccountId?: string;
+  };
 }
 
 export enum ChromeEvents {
-  changeAppState = 'changeAppState',
-  login = 'login',
-  loginError = 'loginError',
-  writeDataToDB = 'writeDataToDB'
+  changeAppState = "changeAppState",
+  login = "login",
+  loginError = "loginError",
+  writeDataToDB = "writeDataToDB",
+  loadWithVideo = "loadWithVideo",
 }
 export interface ChromeMessage<Payload = any> {
   type: ChromeEvents;
-  payload: Payload
+  payload: Payload;
 }
 
 export interface ErrorMessagePayload {
-  message: string
+  message: string;
 }
 
 export interface FirebaseWritePayload {
-  field: 'profile' | 'messages' | 'logs',
-  data: any
+  field: "profile" | "messages" | "logs";
+  data: any;
 }
 
 export enum DialogflowCustomEvents {
-  endSession = 'custom.end_session'
+  endSession = "custom.end_session",
 }

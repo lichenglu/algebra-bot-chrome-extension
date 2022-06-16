@@ -16,6 +16,8 @@ import mockMessages from "./mock/messages.json";
 import {
   MessageTypes,
   DialogflowCustomEvents,
+  ChromeMessage,
+  ChromeEvents,
 } from "./types";
 import { talkToAgent } from "./api";
 import {
@@ -24,7 +26,9 @@ import {
   transformDialogflowToChatUI,
   MagicCommandToEventMap,
   EnhancedMessagePros,
-  DEFAULT_QUICK_REPLIES
+  injectScript,
+  convertMS,
+  DEFAULT_QUICK_REPLIES,
 } from "./utils";
 import { firebaseAuth } from "./services/firebase";
 
@@ -44,12 +48,11 @@ const Toggle = styled.img`
   cursor: pointer;
 `;
 
-
 let MATH_JAX_TIMER: NodeJS.Timer;
 
 function App() {
   const { messages, appendMsg, setTyping } = useMessages([]);
-  const appState = useContext(ChromeContext)
+  const appState = useContext(ChromeContext);
 
   const [chatboxOpen, setChatboxOpen] = useState(true);
   const [navTitle, setNavTitle] = useState("Smoky, the Algebra Bot 🤖");
@@ -61,6 +64,30 @@ function App() {
     value?: string;
   }>({});
   const composerRef = useRef<ComposerHandle>();
+
+  useEffect(() => {
+    chrome.runtime?.onMessage?.addListener(handleMessage);
+
+    return () => {
+      chrome.runtime?.onMessage?.removeListener(handleMessage);
+    };
+  }, []);
+
+  const handleMessage = (msg: ChromeMessage<any>) => {
+    if (msg.type === ChromeEvents.loadWithVideo) {
+      const key = `bot-video-${msg.payload.videoId}`;
+      const position = localStorage.getItem(key);
+      if (position) {
+        localStorage.setItem('bot-position', position)
+        localStorage.removeItem(key)
+        message.info(`About to jump to ${convertMS(Math.max(parseInt(position) / 1000 - 3, 0))} in the video`)
+        // in order to access jwplayer from the window
+        // we have to inject a script to do so
+        injectScript(chrome.runtime.getURL('./src/injectedScripts/autoPlayVideo.js'), 'body');
+      }
+    }
+    return true;
+  };
 
   useEffect(() => {
     clearTimeout(MATH_JAX_TIMER);
@@ -87,9 +114,9 @@ function App() {
       const postId = appState?.user?.uid;
 
       appendMsg({
-        _id: postId,
+        _id: uuidv4(),
         type: "text",
-        content: { text: val },
+        content: { userId: postId, text: val },
         position: "right",
       });
 
@@ -99,7 +126,7 @@ function App() {
       const res = await talkToAgent({
         message: val,
         event: event ?? MagicCommandToEventMap[val],
-        userID: appState?.user?.uid
+        userID: appState?.user?.uid,
       });
       let msgs: EnhancedMessagePros[];
       let replyId: string;
@@ -197,8 +224,6 @@ function App() {
     setMathviewModalOpen(false);
   };
 
-  console.log('appState', appState)
-  
   if (!appState || !appState.enableChatbot) {
     return null;
   }
@@ -265,7 +290,7 @@ function App() {
         }}
       />
     </AppContainer>
-  )
+  );
 }
 
 export default App;

@@ -82,6 +82,10 @@ export const AppContainer = styled.div`
     .Card.resource-with-img {
       height: 338px;
     }
+
+    .SearchCard {
+      height: 260px;
+    }
   }
 `;
 

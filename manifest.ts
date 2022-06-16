@@ -10,7 +10,8 @@ const manifest: ManifestV3Export = {
   content_scripts: [
     {
       js: ["src/main.tsx"],
-      matches: ["https://www.google.com/*", "https://web.algebranation.com/*"],
+      // matches: ["https://www.google.com/*", "https://web.algebranation.com/*"],
+      matches: ["https://web.algebranation.com/*"],
     },
   ],
   background: {

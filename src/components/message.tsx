@@ -82,6 +82,39 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
         />
       );
       break;
+    case MessageTypes.search:
+        contentComponent = (
+          <ScrollView
+            data={content.items}
+            renderItem={(item) => {
+              return (
+                <Card
+                    key={item._id}
+                    className={"SearchCard"}
+                    // @ts-ignore
+                    onClick={() => {
+                      // record starting position for automatic playback
+                      if (item.videoId) {
+                        localStorage.setItem(`bot-video-${item.videoId}`, item.startTime)
+                      }
+                      item.actionLink && window.open(item.actionLink, "_blank")
+                    }}
+                  >
+                    {item.imgUrl && (
+                      <CardMedia image={item.imgUrl} aspectRatio="wide" />
+                    )}
+                    {item.topicName && (
+                      <CardTitle title={trimString(item.section.split(':').shift() + " " + item.topicName, 50)} />
+                    )}
+                    {item.text && (
+                      <CardText>{`Confidence: ${(item.score * 100).toFixed(2)}% `}{trimString(item.text, 120)}</CardText>
+                    )}
+                </Card>
+              );
+            }}
+          />
+        );
+        break;
     case MessageTypes.info:
       contentComponent =
         content.items?.length > 0 ? (
@@ -165,6 +198,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
       MessageTypes.info,
       MessageTypes.description,
       MessageTypes.button,
+      MessageTypes.search,
     ].includes(type as MessageTypes)
   ) {
     return contentComponent;
