@@ -2,6 +2,7 @@ import { MessageProps } from "@chatui/core";
 import { protos } from "@google-cloud/dialogflow-cx";
 import { flatten } from "ramda";
 
+import { v4 as uuid } from 'uuid'
 import { DialogFlowMessage, DialogFlowChipOption, DialogFlowSearchOption, MessageTypes, BackgroundState } from "../types";
 
 export * from './constants'
@@ -14,7 +15,7 @@ export const transformDialogflowToChatUI = (
   response: protos.google.cloud.dialogflow.cx.v3.IDetectIntentResponse,
   parentId: string
 ): EnhancedMessagePros[] => {
-  const id = response.responseId!;
+  const id = response.responseId ?? uuid();
   return flatten<EnhancedMessagePros[][][]>(
     // @ts-ignore
     response.queryResult?.responseMessages?.map((msg, idx) => {
@@ -183,10 +184,15 @@ export async function setBackgroundState(newData: Partial<BackgroundState>) {
 }
 
 export function injectScript(file: string, node: string) {
+  const elem = document.getElementById(file)
+  if (elem) {
+    document.removeChild(elem)
+  }
   var th = document.getElementsByTagName(node)[0];
   var s = document.createElement('script');
   s.setAttribute('type', 'text/javascript');
   s.setAttribute('src', file);
+  s.setAttribute('id', file);
   th.appendChild(s);
 }
 

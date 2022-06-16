@@ -67,27 +67,14 @@ function App() {
 
   useEffect(() => {
     chrome.runtime?.onMessage?.addListener(handleMessage);
+    const eventSource = new EventSource(import.meta.env.VITE_SERVER_BASE_URL + '/chatbot/partialResponse');
+    eventSource.onmessage = handleServerEvent
 
     return () => {
       chrome.runtime?.onMessage?.removeListener(handleMessage);
+      eventSource.close()
     };
   }, []);
-
-  const handleMessage = (msg: ChromeMessage<any>) => {
-    if (msg.type === ChromeEvents.loadWithVideo) {
-      const key = `bot-video-${msg.payload.videoId}`;
-      const position = localStorage.getItem(key);
-      if (position) {
-        localStorage.setItem('bot-position', position)
-        localStorage.removeItem(key)
-        message.info(`About to jump to ${convertMS(Math.max(parseInt(position) / 1000 - 3, 0))} in the video`)
-        // in order to access jwplayer from the window
-        // we have to inject a script to do so
-        injectScript(chrome.runtime.getURL('./src/injectedScripts/autoPlayVideo.js'), 'body');
-      }
-    }
-    return true;
-  };
 
   useEffect(() => {
     clearTimeout(MATH_JAX_TIMER);
@@ -104,6 +91,32 @@ function App() {
   useEffect(() => {
     composerRef.current?.setText(inputText);
   }, [inputText]);
+
+  const handleServerEvent: EventSource['onmessage'] = (ev) => {
+    const data = JSON.parse(ev.data)
+    if (data.userID && data.userID === appState?.user?.uid) {
+      let msgs: EnhancedMessagePros[];
+      msgs = transformDialogflowToChatUI(data.response, appState?.user?.uid!);
+      msgs.forEach((msg) => appendMsg(msg));
+      setTyping(true)
+    }
+  }
+
+  const handleMessage = (msg: ChromeMessage<any>) => {
+    if (msg.type === ChromeEvents.loadWithVideo) {
+      const key = `bot-video-${msg.payload.videoId}`;
+      const position = localStorage.getItem(key);
+      if (position) {
+        localStorage.setItem('bot-position', position)
+        localStorage.removeItem(key)
+        message.info(`About to jump to ${convertMS(Math.max(parseInt(position) / 1000 - 3, 0))} in the video`)
+        // in order to access jwplayer from the window
+        // we have to inject a script to do so
+        injectScript(chrome.runtime.getURL('./src/injectedScripts/autoPlayVideo.js'), 'body');
+      }
+    }
+    return true;
+  };
 
   const handleSend = async (
     type: string,
