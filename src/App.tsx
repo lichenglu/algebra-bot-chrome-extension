@@ -64,6 +64,7 @@ function App() {
     value?: string;
   }>({});
   const composerRef = useRef<ComposerHandle>();
+  const appStateRef = useRef(appState)
 
   useEffect(() => {
     chrome.runtime?.onMessage?.addListener(handleMessage);
@@ -92,11 +93,15 @@ function App() {
     composerRef.current?.setText(inputText);
   }, [inputText]);
 
+  useEffect(() => {
+    appStateRef.current = appState
+  }, [appState])
+
   const handleServerEvent: EventSource['onmessage'] = (ev) => {
     const data = JSON.parse(ev.data)
-    if (data.userID && data.userID === appState?.user?.uid) {
+    if (data.userID && data.userID === appStateRef.current?.user?.uid) {
       let msgs: EnhancedMessagePros[];
-      msgs = transformDialogflowToChatUI(data.response, appState?.user?.uid!);
+      msgs = transformDialogflowToChatUI(data.response, appStateRef.current?.user?.uid!);
       msgs.forEach((msg) => appendMsg(msg));
       setTyping(true)
     }
@@ -108,8 +113,12 @@ function App() {
       const position = localStorage.getItem(key);
       if (position) {
         localStorage.setItem('bot-position', position)
+        localStorage.setItem('bot-videoId', msg.payload.videoId)
         localStorage.removeItem(key)
-        message.info(`About to jump to ${convertMS(Math.max(parseInt(position) / 1000 - 3, 0))} in the video`)
+        message.info(
+          `About to jump to ${convertMS(Math.max(parseInt(position) / 1000 - 3, 0))} in the video`,
+          5
+        )
         // in order to access jwplayer from the window
         // we have to inject a script to do so
         injectScript(chrome.runtime.getURL('./src/injectedScripts/autoPlayVideo.js'), 'body');

@@ -52,6 +52,16 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
         />
       );
       break;
+    case MessageTypes.iframe:
+      contentComponent = (
+        <iframe
+          width={"420"}
+          height="420"
+          src={content.url}
+          frameBorder={'0'}
+        />
+      );
+      break;
     case MessageTypes.button:
       contentComponent = (
         <Button
@@ -96,8 +106,10 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
                       // record starting position for automatic playback
                       if (item.videoId) {
                         localStorage.setItem(`bot-video-${item.videoId}`, item.startTime)
+                        localStorage.setItem(`bot-section-number`, item.section?.match(/[0-9]+/))
                       }
-                      item.actionLink && window.open(item.actionLink, "_blank")
+                      history.pushState(null, 'Click to see recommended videos', item.actionLink)
+                      // item.actionLink && window.open(item.actionLink, "_blank")
                     }}
                   >
                     {item.imgUrl && (
@@ -107,7 +119,12 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
                       <CardTitle title={trimString(item.section.split(':').shift() + " " + item.topicName, 50)} />
                     )}
                     {item.text && (
-                      <CardText>{`Confidence: ${(item.score * 100).toFixed(2)}% `}{trimString(item.text, 120)}</CardText>
+                      <CardText>
+                        {`Confidence: ${(item.score * 100).toFixed(2)}% `}
+                        <p style={{ fontSize: 12 }}>
+                          {`...${trimString(item.text, 180)}`}
+                        </p>
+                      </CardText>
                     )}
                 </Card>
               );

@@ -86,6 +86,8 @@ export const transformDialogflowToChatUI = (
                 };
               }
 
+              console.log(content.type)
+
               return {
                 _id: `${id}_${idx}_${idx2}_${idx3}_${content.type}`,
                 type: content.type,
@@ -107,6 +109,7 @@ export const transformDialogflowToChatUI = (
                   actionLink: content.actionLink ?? content.link,
                   description: content.subtitle,
                   imgUrl: content.rawUrl ?? content.image?.src,
+                  url: content.rawUrl ?? content.image?.src,
                   event: content.event,
                 },
                 position: "left",
@@ -184,11 +187,11 @@ export async function setBackgroundState(newData: Partial<BackgroundState>) {
 }
 
 export function injectScript(file: string, node: string) {
+  var th = document.getElementsByTagName(node)[0];
   const elem = document.getElementById(file)
   if (elem) {
-    document.removeChild(elem)
+    th.removeChild(elem)
   }
-  var th = document.getElementsByTagName(node)[0];
   var s = document.createElement('script');
   s.setAttribute('type', 'text/javascript');
   s.setAttribute('src', file);

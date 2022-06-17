@@ -58,6 +58,7 @@ export enum MessageTypes {
   text = "text",
   button = "button",
   image = "image",
+  iframe = "iframe",
   info = "info",
   description = "description",
   list = "list",
