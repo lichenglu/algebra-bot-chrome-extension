@@ -15,9 +15,9 @@ import {
 import { Tag, Avatar, Image } from "antd";
 import { BulbOutlined } from "@ant-design/icons";
 
-import { MessageTypes } from "../types";
+import { MessageTypes, ANTutorMap, ANTutors } from "../types";
 import schnauzerImg from "../assets/schnauzer.png";
-import { trimString } from "../utils";
+import { trimString, convertMS } from "../utils";
 import TruncatedList from "../components/truncatedList";
 
 export interface MessageProps extends ChatMessageProps {
@@ -106,9 +106,14 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
                       // record starting position for automatic playback
                       if (item.videoId) {
                         localStorage.setItem(`bot-video-${item.videoId}`, item.startTime)
-                        localStorage.setItem(`bot-section-number`, item.section?.match(/[0-9]+/))
+                        localStorage.setItem(`bot-section-id`, item.sectionId)
+                        localStorage.setItem(`bot-tutor-id`, item.tutorId)
                       }
-                      history.pushState(null, 'Click to see recommended videos', item.actionLink)
+                      history.pushState(
+                        null, 
+                        'Click to see recommended videos', 
+                        `${item.actionLink}?tutorId=${item.tutorId}`
+                      )
                       // item.actionLink && window.open(item.actionLink, "_blank")
                     }}
                   >
@@ -116,11 +121,14 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
                       <CardMedia image={item.imgUrl} aspectRatio="wide" />
                     )}
                     {item.topicName && (
-                      <CardTitle title={trimString(item.section.split(':').shift() + " " + item.topicName, 50)} />
+                      <CardTitle title={
+                        `${trimString(item.section.split(':').shift() + " " + item.topicName, 50)} [${convertMS(Number(item.startTime) / 1000)}]`
+                      } 
+                      />
                     )}
                     {item.text && (
                       <CardText>
-                        {`Confidence: ${(item.score * 100).toFixed(2)}% `}
+                        {`By ${ANTutorMap[item.tutorId as ANTutors]} (Search Confidence: ${(item.score * 100).toFixed(2)}%)`}
                         <p style={{ fontSize: 12 }}>
                           {`...${trimString(item.text, 180)}`}
                         </p>

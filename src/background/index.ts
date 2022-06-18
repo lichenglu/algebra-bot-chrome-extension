@@ -122,7 +122,6 @@ chrome.runtime.onMessage.addListener(async (message: ChromeMessage) => {
         let credential = GoogleAuthProvider.credential(null, token);
         await signInWithCredential(firebaseAuth, credential);
       } catch (err) {
-        console.log('aloha', err);
         // https://stackoverflow.com/a/14245504
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
           chrome.tabs.sendMessage(tabs[0].id!, {
@@ -149,11 +148,14 @@ chrome.tabs.onUpdated.addListener(
     // read changeInfo data and do something with it
     // like send the new url to contentscripts.js
     if (changeInfo.url?.includes('video/')) {
-      const videoId = changeInfo.url.split('video/').pop()
+      const match = changeInfo.url.match(/[0-9]+/)
+      if (!match) {
+        return
+      }
       chrome.tabs.sendMessage(tabId, {
         type: ChromeEvents.loadWithVideo,
         payload: {
-          videoId
+          videoId: match[0]
         }
       })
     }

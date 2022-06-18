@@ -74,6 +74,8 @@ export const transformDialogflowToChatUI = (
                         text: _opt.metadata.text,
                         topicName: _opt.metadata.name,
                         section: _opt.metadata.section,
+                        sectionId: _opt.metadata.sectionId,
+                        tutorId: _opt.metadata.tutorId,
                         videoId: _opt.metadata.videoId,
                         startTime: _opt.metadata.startTime,
                         actionLink: `https://web.algebranation.com/video/${_opt.metadata.videoId}`,

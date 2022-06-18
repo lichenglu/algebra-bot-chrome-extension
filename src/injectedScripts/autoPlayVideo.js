@@ -3,31 +3,14 @@ try {
     const videoId = Number(localStorage.getItem('bot-videoId'))
     window.jwplayer && window.jwplayer().pause()
     if (videoId && typeof $ !== 'undefined') {
-        const sectionNum = localStorage.getItem('bot-section-number')
-        const sectionMap = {
-            1: 571,
-            2: 572,
-            3: 573,
-            4: 574,
-            5: 577,
-            6: 578,
-            7: 579,
-            8: 580,
-            9: 581,
-            10: 582,
-        }
-
-        const sectionId = sectionMap[sectionNum]
+        const sectionId = localStorage.getItem('bot-section-id')
+        const videoTutorId = localStorage.getItem('bot-tutor-id')
 
         const currentSectionTutorId = $(`.video-tutors[data-tutors-section-id=${sectionId}] img.tutor_image.default`).data().tutorId
-        const darnellElem = $(`.video-tutors[data-tutors-section-id=${sectionId}] img.tutor_image[data-tutor-id=3]`).parent()
+        const targetTutorElem = $(`.video-tutors[data-tutors-section-id=${sectionId}] img.tutor_image[data-tutor-id=${videoTutorId}]`)
 
-        if (currentSectionTutorId !== 3) {
-            // Switch tutor to Darnell
-            // as he is the only tutor the video
-            // recommender is indexed with
-            darnellElem.click()
-        }
+        // Switch tutor
+        targetTutorElem.click()
 
         // click target video to play
         $(`li.video > a[data-resource-id="${videoId}"]`).click()
@@ -59,7 +42,8 @@ try {
             }
             localStorage.removeItem('bot-position')
             localStorage.removeItem('bot-videoId')
-            localStorage.removeItem('bot-section-number')
+            localStorage.removeItem('bot-section-id')
+            localStorage.removeItem('bot-tutor-id')
             clearInterval(BOT_TIMER)
         }, 1000)
     }

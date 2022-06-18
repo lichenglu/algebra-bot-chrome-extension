@@ -18,6 +18,8 @@ export interface DialogFlowSearchOption {
     startTime: number;
     name: string;
     section: string;
+    sectionId: string;
+    tutorId: string;
     text: string;
     videoId: number;
   };
@@ -99,4 +101,22 @@ export interface FirebaseWritePayload {
 
 export enum DialogflowCustomEvents {
   endSession = "custom.end_session",
+}
+
+export enum ANTutors {
+  amy = 1,
+  ashley = 2,
+  darnell = 3,
+  jose = 6,
+  kiana = 8,
+  zach = 5
+}
+
+export const ANTutorMap = {
+  [ANTutors.amy]: 'Amy',
+  [ANTutors.ashley]: 'Ashley',
+  [ANTutors.darnell]: 'Darnell',
+  [ANTutors.jose]: 'Jose',
+  [ANTutors.kiana]: 'Kiana',
+  [ANTutors.zach]: 'Zach',
 }
