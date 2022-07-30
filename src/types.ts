@@ -101,6 +101,7 @@ export interface FirebaseWritePayload {
 
 export enum DialogflowCustomEvents {
   endSession = "custom.end_session",
+  clearMessages = "clearMessages",
 }
 
 export enum ANTutors {

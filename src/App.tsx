@@ -51,7 +51,7 @@ const Toggle = styled.img`
 let MATH_JAX_TIMER: NodeJS.Timer;
 
 function App() {
-  const { messages, appendMsg, setTyping } = useMessages([]);
+  const { messages, appendMsg, setTyping, resetList } = useMessages([]);
   const appState = useContext(ChromeContext);
 
   const [chatboxOpen, setChatboxOpen] = useState(true);
@@ -134,6 +134,12 @@ function App() {
   ) => {
     if (type === MessageTypes.text && val.trim()) {
       const postId = appState?.user?.uid;
+
+      // clear message
+      if (MagicCommandToEventMap[val] === DialogflowCustomEvents.clearMessages) {
+        resetList()
+        return
+      }
 
       appendMsg({
         _id: uuidv4(),

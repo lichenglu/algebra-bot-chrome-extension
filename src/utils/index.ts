@@ -31,10 +31,15 @@ export const transformDialogflowToChatUI = (
         };
       }
 
-      if (msg.payload) {
+      // @ts-ignore
+      if (msg.payload && msg.payload.richContent) {
         // @ts-ignore
         return msg.payload.richContent.map(
           (richContent: DialogFlowMessage[], idx2: number) => {
+            if (!richContent) {
+              return null
+            }
+            
             return richContent.map((content, idx3: number) => {
               if (!content) {
                 return undefined;

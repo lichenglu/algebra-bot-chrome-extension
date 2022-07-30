@@ -150,7 +150,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
               width: "100%",
             }}
           >
-            <Divider>{content.text}</Divider>
+            {content.text && <Divider>{content.text}</Divider>}
             <ScrollView
               data={content.items}
               renderItem={(item) => {

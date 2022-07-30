@@ -2,6 +2,7 @@ import { DialogflowCustomEvents, CustomQuickReplyItemProps } from "../types";
 
 export const MagicCommandToEventMap: { [key: string]: string } = {
   "/exit": DialogflowCustomEvents.endSession,
+  "/clear": DialogflowCustomEvents.clearMessages,
 };
 
 export const DEFAULT_QUICK_REPLIES: CustomQuickReplyItemProps[] = [

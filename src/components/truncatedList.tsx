@@ -52,13 +52,13 @@ const TruncatedList: React.FC<TruncatedListProps> = ({
         }}
       >
         {!reachedMax && <h2>...</h2>}
-        <Button
+        {items.length > 1 && <Button
           onClick={handleShowClick}
           icon={<BellOutlined />}
           type="primary"
         >
           {reachedMax ? "Collapse" : "Show More"}
-        </Button>
+        </Button>}
       </div>
     </Container>
   );
