@@ -12,7 +12,7 @@ export const DEFAULT_QUICK_REPLIES: CustomQuickReplyItemProps[] = [
     isHighlight: true,
   },
   {
-    icon: "folder",
+    icon: "file",
     name: "Search",
     isHighlight: true,
   },

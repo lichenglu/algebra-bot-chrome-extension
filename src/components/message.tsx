@@ -65,7 +65,8 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
     case MessageTypes.button:
       contentComponent = (
         <Button
-          variant="float"
+          color='primary'
+          variant="outline"
           label={content.text}
           onClick={(e) => buttonProps?.onClick?.(msg, e)}
         />
@@ -127,6 +128,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
                       />
                     )}
                     {item.text && (
+                      // @ts-ignore
                       <CardText>
                         {`By ${ANTutorMap[item.tutorId as ANTutors]} (Search Confidence: ${(item.score * 100).toFixed(2)}%)`}
                         <p style={{ fontSize: 12 }}>
@@ -150,6 +152,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
               width: "100%",
             }}
           >
+            {/* @ts-ignore */}
             {content.text && <Divider>{content.text}</Divider>}
             <ScrollView
               data={content.items}
@@ -171,6 +174,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
                     )}
                     {/* @ts-ignore */}
                     {item.description && (
+                      // @ts-ignore
                       <CardText>{trimString(item.description)}</CardText>
                     )}
                   </Card>
@@ -189,6 +193,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
             <CardTitle title={trimString(content.text, 50)} />
             {/* @ts-ignore */}
             {content.description && (
+              // @ts-ignore
               <CardText>{trimString(content.description)}</CardText>
             )}
           </Card>
@@ -197,6 +202,7 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
     case MessageTypes.description:
       contentComponent = (
         <div>
+          {/* @ts-ignore */}
           <Divider>{content.text as string}</Divider>
           <Bubble>
             <TruncatedList

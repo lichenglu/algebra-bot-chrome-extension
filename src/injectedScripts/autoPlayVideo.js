@@ -7,14 +7,22 @@ setTimeout(() => {
             const sectionId = localStorage.getItem('bot-section-id')
             const videoTutorId = localStorage.getItem('bot-tutor-id')
     
-            const currentSectionTutorId = $(`.video-tutors[data-tutors-section-id=${sectionId}] img.tutor_image.default`).data().tutorId
+            // const currentSectionTutorId = $(`.video-tutors[data-tutors-section-id=${sectionId}] img.tutor_image.default`).data().tutorId
             const targetTutorElem = $(`.video-tutors[data-tutors-section-id=${sectionId}] img.tutor_image[data-tutor-id=${videoTutorId}]`)
     
+            
+            // click target video to play
+            const targetVideo = $(`li.video > a[data-resource-id="${videoId}"]`)
+            if (!document.contains(targetVideo[0])) {
+                console.log('Video not found')
+                return
+            }
+            
+            console.log('targetVideo', targetVideo)
             // Switch tutor
             targetTutorElem.click()
-    
-            // click target video to play
-            $(`li.video > a[data-resource-id="${videoId}"]`).click()
+            // play
+            targetVideo.click()
             
             // Turns out I cannot switch back to tutor
             // because doing so will also change the video

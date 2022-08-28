@@ -208,8 +208,8 @@ export function injectScript(file: string, node: string) {
 
 export function convertMS(sec: number) {
   let hours   = Math.floor(sec / 3600); // get hours
-  let minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
-  let seconds = Math.floor(sec - (hours * 3600) - (minutes * 60)); //  get seconds
+  let minutes: number | string = Math.floor((sec - (hours * 3600)) / 60); // get minutes
+  let seconds: number | string = Math.floor(sec - (hours * 3600) - (minutes * 60)); //  get seconds
   // add 0 if value < 10; Example: 2 => 02
   if (minutes < 10) {minutes = "0"+minutes.toFixed(0);}
   if (seconds < 10) {seconds = "0"+seconds.toFixed(0);}

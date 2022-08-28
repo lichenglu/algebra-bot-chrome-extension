@@ -14,7 +14,7 @@ const App: React.FC<{}> = () => {
 
   useEffect(() => {
     if (Object.keys(appState ?? {}).length > 0) {
-      chrome.storage.sync.set({
+      chrome.storage.local.set({
         appState,
       });
 

@@ -83,7 +83,9 @@ const Auth: React.FC<AuthProps> = () => {
     <Card
       bodyStyle={{
         width: 400,
-        height: 300,
+        minHeight: 300,
+        height: 'fit-content',
+        padding: '16px',
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",

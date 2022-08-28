@@ -6,7 +6,7 @@ import Chat, {
 } from "@chatui/core";
 import { ComposerHandle } from "@chatui/core/lib/components/Composer";
 import { message, Modal, Spin } from "antd";
-import { MathFieldChangeEvent, MathViewRef } from "@edpi/react-math-view";
+import { MathFieldChangeEvent, MathViewRef } from "@chenglu/react-math-view";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
@@ -67,10 +67,11 @@ function App() {
   const appStateRef = useRef(appState)
 
   useEffect(() => {
+    chrome.runtime?.connect('jgiogkoaafflijibbikleachmkmccepa')
     chrome.runtime?.onMessage?.addListener(handleMessage);
     const eventSource = new EventSource(import.meta.env.VITE_SERVER_BASE_URL + '/chatbot/partialResponse');
     eventSource.onmessage = handleServerEvent
-
+        
     return () => {
       chrome.runtime?.onMessage?.removeListener(handleMessage);
       eventSource.close()
@@ -251,6 +252,8 @@ function App() {
 
     setMathviewModalOpen(false);
   };
+
+  console.log('appState', appState);
 
   if (!appState || !appState.enableChatbot) {
     return null;

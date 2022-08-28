@@ -82,56 +82,105 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.runtime.onConnect.addListener(async () => {
-  firebaseAuth.onAuthStateChanged(async (user) => {
-    // signOut(firebaseAuth)
-    const { useraccountId, fallbackUseraccountId } =
-      await extractUserAccountId();
+const handleUserLogin = async (user: User | null) => {
+  // signOut(firebaseAuth)
+  const { useraccountId, fallbackUseraccountId } =
+  await extractUserAccountId();
 
-    if (user) {
-      saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
-        ...user.toJSON(),
-      });
-      
-      if (useraccountId.trim()) {
-        saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
-          algebraNationData: {
-            useraccountId,
-            fallbackUseraccountId,
-          },
-        });
-      }
-    }
-
-    await setBackgroundState({
-      user: (user?.toJSON?.() as User) ?? null,
-      algebraNationData: {
-        useraccountId,
-        fallbackUseraccountId,
-      },
+  if (user) {
+    saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
+      ...user.toJSON(),
     });
+    
+    if (useraccountId.trim()) {
+      saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
+        algebraNationData: {
+          useraccountId,
+          fallbackUseraccountId,
+        },
+      });
+    }
+  }
+
+  await setBackgroundState({
+    user: (user?.toJSON?.() as User) ?? null,
+    algebraNationData: {
+      useraccountId,
+      fallbackUseraccountId,
+    },
   });
+}
+
+// track authentication
+const authSubscrition = firebaseAuth.onAuthStateChanged(handleUserLogin);
+
+chrome.runtime.onConnect.addListener(async () => {
+  console.log('connected!')
 });
 
 chrome.runtime.onMessage.addListener(async (message: ChromeMessage) => {
   // login
   if (message.type === ChromeEvents.login) {
     // https://prog.world/firebase-auth-in-chrome-extension-manifest-v3/
-    chrome.identity.getAuthToken({ interactive: true }, async (token) => {
-      try {
-        let credential = GoogleAuthProvider.credential(null, token);
-        await signInWithCredential(firebaseAuth, credential);
-      } catch (err) {
-        // https://stackoverflow.com/a/14245504
+    // chrome.identity.getAuthToken({ interactive: true }, async (token) => {
+    //   try {
+    //     let credential = GoogleAuthProvider.credential(null, token);
+    //     await signInWithCredential(firebaseAuth, credential);
+    //   } catch (err) {
+    //     console.log(err);
+    //     // https://stackoverflow.com/a/14245504
+    //     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    //       chrome.tabs.sendMessage(tabs[0].id!, {
+    //         type: ChromeEvents.loginError,
+    //         payload: {
+    //           message: `Failed to login - ${(err as AuthError).message}`,
+    //         },
+    //       });
+    //     });
+    //   }
+    // });
+
+    // https://gist.github.com/raineorshine/970b60902c9e6e04f71d?permalink_comment_id=3168397
+    const redirectURL = chrome.identity.getRedirectURL();
+    const { oauth2 } = chrome.runtime.getManifest();
+    if (!oauth2) {
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id!, {
+          type: ChromeEvents.loginError,
+          payload: {
+            message: `Failed to login - no oauth info provided'}`,
+          },
+        });
+      });
+      return
+    }
+    const clientId = oauth2.client_id;
+    const authParams = new URLSearchParams({
+      client_id: clientId,
+      response_type: 'token',
+      redirect_uri: redirectURL,
+      scope: ['email'].join(' '),
+    });
+    const authURL = `https://accounts.google.com/o/oauth2/auth?${authParams.toString()}`;
+    chrome.identity.launchWebAuthFlow({ url: authURL, interactive: true }, async (responseUrl) => {
+      if (chrome.runtime.lastError || !responseUrl) {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
           chrome.tabs.sendMessage(tabs[0].id!, {
             type: ChromeEvents.loginError,
             payload: {
-              message: `Failed to login - ${(err as AuthError).message}`,
+              message: `Failed to login - ${chrome.runtime.lastError?.message ?? 'no response url returned'}`,
             },
           });
         });
+        return
       }
+      
+      const url = new URL(responseUrl);
+      const urlParams = new URLSearchParams(url.hash.slice(1));
+      const params = Object.fromEntries(urlParams.entries()); // access_token, expires_in
+
+      let credential = GoogleAuthProvider.credential(null, params.access_token);
+      await signInWithCredential(firebaseAuth, credential);
     });
   }
 

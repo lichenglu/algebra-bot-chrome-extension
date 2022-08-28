@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import MathView, { MathViewProps, MathViewRef, MathFieldChangeEvent } from "@edpi/react-math-view";
+import MathView, { MathViewProps, MathViewRef, MathFieldChangeEvent } from "@chenglu/react-math-view";
 
 import { HIGH_SCHOOL_KEYBOARD_LAYER, HIGH_SCHOOL_KEYBOARD } from './config';
 
@@ -36,6 +36,8 @@ const MathWithKeyboardButton = React.memo((props: MathViewProps) => {
     [props.onChange]
   );
 
+  const directory = import.meta.env.DEV ? chrome.runtime?.getURL?.('assets/fonts') : undefined
+
   return (
     <Container>
       <MathView
@@ -43,7 +45,8 @@ const MathWithKeyboardButton = React.memo((props: MathViewProps) => {
         onChange={onChange}
         className="my-mathview"
         ref={ref}
-        fontsDirectory={chrome.runtime?.getURL?.('src/assets/fonts')}
+        fontsDirectory={directory}
+        // @ts-ignore
         customVirtualKeyboardLayers={HIGH_SCHOOL_KEYBOARD_LAYER}
         customVirtualKeyboards={HIGH_SCHOOL_KEYBOARD}
         virtualKeyboards={"high-school-keyboard"}

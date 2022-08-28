@@ -71,7 +71,7 @@ export enum MessageTypes {
 
 export interface BackgroundState {
   enableChatbot: boolean;
-  user?: User | null;
+  user?: Partial<User> | null;
   algebraNationData?: {
     useraccountId?: string;
     fallbackUseraccountId?: string;

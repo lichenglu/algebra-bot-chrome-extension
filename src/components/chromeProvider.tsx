@@ -48,10 +48,12 @@ const ChromeProvider: React.FC<{ children?: React.ReactNode }> = ({
     changes: { [key: string]: chrome.storage.StorageChange },
     area: string
   ) => {
+    console.log('aloha')
     if (
       changes.appState &&
       changes.appState?.newValue !== changes.appState?.oldValue
-    ) {
+      ) {
+      console.log('aloha2', changes.appState?.newValue)
       setAppState(changes.appState?.newValue);
     }
   };

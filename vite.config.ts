@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { crx } from "@crxjs/vite-plugin";
-import vitePluginImp from 'vite-plugin-imp'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { resolve } from "path";
 
 import manifest from "./manifest";
@@ -15,8 +15,11 @@ export default defineConfig({
         popup: resolve(__dirname, 'popup.html'),
       },
     },
+    sourcemap: 'inline',
   },
   plugins: [
+    // https://github.com/crxjs/chrome-extension-tools/issues/454#issuecomment-1199168326
+    // it seems that we need to use the classic runtime to make crx work
     react(), 
     // vitePluginImp({
     //   optimize: true,
@@ -29,6 +32,26 @@ export default defineConfig({
     //   ]
     // }),
     crx({ manifest }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'src/assets/fonts/*.woff',
+          dest: 'assets/fonts'
+        },
+        {
+          src: 'src/assets/fonts/*.woff2',
+          dest: 'assets/fonts'
+        },
+        {
+          src: 'src/assets/fonts/*.ttf',
+          dest: 'assets/fonts'
+        },
+        {
+          src: 'src/injectedScripts/*.js',
+          dest: 'src/injectedScripts/'
+        },
+      ]
+    })
   ],
   css: {
     preprocessorOptions: {
