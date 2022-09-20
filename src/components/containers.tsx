@@ -15,6 +15,7 @@ export const AppContainer = styled.div`
     width: 540px;
     bottom: calc(24px + 64px);
     right: calc(24px + 64px);
+    z-index: 9999;
 
     .Input {
       font-size: 16px;

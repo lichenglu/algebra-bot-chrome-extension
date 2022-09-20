@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
 import schnauzerImg from "./assets/schnauzer.png";
-import mockMessages from "./mock/messages.json";
+import mockMessages from "./mock/personalized.json";
 
 import {
   MessageTypes,
@@ -71,7 +71,7 @@ function App() {
     chrome.runtime?.onMessage?.addListener(handleMessage);
     const eventSource = new EventSource(import.meta.env.VITE_SERVER_BASE_URL + '/chatbot/partialResponse');
     eventSource.onmessage = handleServerEvent
-        
+
     return () => {
       chrome.runtime?.onMessage?.removeListener(handleMessage);
       eventSource.close()

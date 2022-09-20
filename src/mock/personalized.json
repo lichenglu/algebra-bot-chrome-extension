@@ -1,0 +1,33 @@
+[
+    {
+        "type": "text",
+        "content": { "text": "Hi! What kind of music do you like?" },
+        "position": "right",
+        "_id": "w32lx9wk3cer",
+        "createdAt": 1662831229274,
+        "hasTime": true
+      },
+      {
+        "_id": "04a599a5-2ebe-4a7c-92ca-8c131ef25c22_0",
+        "type": "text",
+        "content": {
+          "text": "Glad you asked! I am a huge fan of groovy music such as Blues and Funky Jazz."
+        },
+        "position": "left",
+        "hasTime": false
+      },
+      {
+        "type": "text",
+        "content": { "text": "That's awesome! I like Blues too! Who is your favoriate singer?" },
+        "position": "right",
+        "_id": "w32lx9wk3asd21er",
+        "hasTime": false
+      },
+      {
+        "type": "text",
+        "content": { "text": "Woohoo! I love John Mayer and Stevie Wonder the most. My favorite song is Gravity!" },
+        "position": "left",
+        "_id": "w32lx9wk3asd2asdasd1er",
+        "hasTime": false
+      }
+]

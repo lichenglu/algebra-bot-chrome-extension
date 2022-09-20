@@ -1,0 +1,30 @@
+[
+    {
+        "type": "text",
+        "content": { "text": "How do I interpret $y=3x+4$" },
+        "position": "right",
+        "_id": "w32lx9wk3cer",
+        "createdAt": 1662828920432,
+        "hasTime": true
+      },
+      {
+        "_id": "04a599a5-2ebe-4a7c-92ca-8c131ef25c22_0",
+        "type": "text",
+        "content": {
+          "text": "Great question! Imagine X to be the number of fans of Lil J(anet), a beginning rap lover, and we can predict her album sale Y as $y=3x+4$"
+        },
+        "position": "left",
+        "createdAt": 1662828936317,
+        "hasTime": false
+      },
+      {
+        "_id": "04a599a5-2ebe-4a7c-92ca-8c131ef25c22_1_0_0",
+        "type": "text",
+        "content": {
+            "text": "Meanwhile, we can plot it as below:"
+        },
+        "position": "left",
+        "createdAt": 1662828936317,
+        "hasTime": false
+      }
+]
