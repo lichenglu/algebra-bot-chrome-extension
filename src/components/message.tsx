@@ -12,12 +12,12 @@ import {
   FlexItem,
   MessageProps as ChatMessageProps,
 } from "@chatui/core";
-import { Tag, Avatar, Image } from "antd";
+import { Tag, Avatar, Image, message } from "antd";
 import { BulbOutlined } from "@ant-design/icons";
 
-import { MessageTypes, ANTutorMap, ANTutors } from "../types";
+import { MessageTypes, ANTutorMap, ANTutors, ChromeEvents } from "../types";
 import schnauzerImg from "../assets/schnauzer.png";
-import { trimString, convertMS } from "../utils";
+import { trimString, convertMS, injectScript } from "../utils";
 import TruncatedList from "../components/truncatedList";
 
 export interface MessageProps extends ChatMessageProps {
@@ -110,11 +110,15 @@ const Message: React.FC<MessageProps> = ({ buttonProps, ...msg }) => {
                         localStorage.setItem(`bot-section-id`, item.sectionId)
                         localStorage.setItem(`bot-tutor-id`, item.tutorId)
                       }
-                      history.pushState(
-                        null, 
-                        'Click to see recommended videos', 
-                        `${item.actionLink}?tutorId=${item.tutorId}`
-                      )
+                      // For BEST only
+                      chrome.runtime.sendMessage({ type: ChromeEvents.startVideo, payload: item.videoId });
+
+                      // For V1 only
+                      // history.pushState(
+                      //   null, 
+                      //   'Click to see recommended videos', 
+                      //   `${item.actionLink}?tutorId=${item.tutorId}`
+                      // )
                       // item.actionLink && window.open(item.actionLink, "_blank")
                     }}
                   >

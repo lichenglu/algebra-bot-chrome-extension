@@ -35,18 +35,8 @@ import { firebaseAuth } from "./services/firebase";
 import MathWithKeyboardButton from "./components/mathview";
 import Message from "./components/message";
 import Auth from "./components/authentication";
-import { AppContainer } from "./components/containers";
+import { AppContainer, Toggle } from "./components/containers";
 import { ChromeContext } from "./components/chromeProvider";
-
-const Toggle = styled.img`
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  cursor: pointer;
-`;
 
 let MATH_JAX_TIMER: NodeJS.Timer;
 
@@ -117,12 +107,13 @@ function App() {
         localStorage.setItem('bot-videoId', msg.payload.videoId)
         localStorage.removeItem(key)
         message.info(
-          `About to jump to ${convertMS(Math.max(parseInt(position) / 1000 - 3, 0))} in the video`,
-          5
+          `About to start the vide. This can take some seconds. I will automatically jump to ${convertMS(Math.max(parseInt(position) / 1000 - 3, 0))} in the video`,
+          8
         )
         // in order to access jwplayer from the window
         // we have to inject a script to do so
-        injectScript(chrome.runtime.getURL('./src/injectedScripts/autoPlayVideo.js'), 'body');
+        // injectScript(chrome.runtime.getURL('./src/injectedScripts/autoPlayVideo.js'), 'body');
+        injectScript(chrome.runtime.getURL('./src/injectedScripts/autoPlayVideoBEST.js'), 'body');
       }
     }
     return true;
@@ -252,8 +243,6 @@ function App() {
 
     setMathviewModalOpen(false);
   };
-
-  console.log('appState', appState);
 
   if (!appState || !appState.enableChatbot) {
     return null;

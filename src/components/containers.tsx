@@ -1,11 +1,20 @@
 import styled from 'styled-components';
 import { Spin } from 'antd'
 
+const getPosition = () => {
+  if (document.URL.includes('algebranation')) {
+    return ['100px', '104px']
+  }
+  return ['24px', '24px']
+}
+
+const [bottom, right] = getPosition()
+
 export const AppContainer = styled.div`
   .chatbot__authentication {
     position: fixed;
-    bottom: calc(24px + 64px);
-    right: calc(24px + 64px);
+    bottom: calc(${bottom} + 64px);
+    right: calc(${right} + 64px);
   }
 
   .ChatApp {
@@ -13,9 +22,11 @@ export const AppContainer = styled.div`
     min-height: 720px;
     height: 60vh;
     width: 540px;
-    bottom: calc(24px + 64px);
-    right: calc(24px + 64px);
-    z-index: 9999;
+    bottom: calc(${bottom} + 64px);
+    right: calc(${right} + 64px);
+    z-index: 104;
+
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
     .Input {
       font-size: 16px;
@@ -95,3 +106,14 @@ export const TagContainer = styled.div`
     gap: 4px;
     flex-wrap: wrap;
 `
+
+export const Toggle = styled.img`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  position: fixed;
+  bottom: ${bottom};
+  right: ${right};
+  cursor: pointer;
+  z-index: 104;
+`;

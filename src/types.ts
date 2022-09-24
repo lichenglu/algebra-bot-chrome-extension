@@ -84,6 +84,7 @@ export enum ChromeEvents {
   loginError = "loginError",
   writeDataToDB = "writeDataToDB",
   loadWithVideo = "loadWithVideo",
+  startVideo = "startVideo",
 }
 export interface ChromeMessage<Payload = any> {
   type: ChromeEvents;
@@ -110,7 +111,11 @@ export enum ANTutors {
   darnell = 3,
   jose = 6,
   kiana = 8,
-  zach = 5
+  zach = 5,
+  tiffany = 17,
+  karen = 16,
+  lj = 15,
+  anderson = 14
 }
 
 export const ANTutorMap = {
@@ -120,4 +125,8 @@ export const ANTutorMap = {
   [ANTutors.jose]: 'Jose',
   [ANTutors.kiana]: 'Kiana',
   [ANTutors.zach]: 'Zach',
+  [ANTutors.anderson]: 'Anderson',
+  [ANTutors.lj]: 'LJ',
+  [ANTutors.karen]: 'Karen',
+  [ANTutors.tiffany]: 'Tiffany',
 }

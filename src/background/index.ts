@@ -3,7 +3,7 @@ import {
   signInWithCredential,
   signOut,
   AuthError,
-  User
+  User,
 } from "firebase/auth";
 import {
   ref,
@@ -84,14 +84,13 @@ chrome.runtime.onInstalled.addListener(() => {
 
 const handleUserLogin = async (user: User | null) => {
   // signOut(firebaseAuth)
-  const { useraccountId, fallbackUseraccountId } =
-  await extractUserAccountId();
+  const { useraccountId, fallbackUseraccountId } = await extractUserAccountId();
 
   if (user) {
     saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
       ...user.toJSON(),
     });
-    
+
     if (useraccountId.trim()) {
       saveOrUpdateDataOfFieldToUser(user.uid, "profile", {
         algebraNationData: {
@@ -109,13 +108,13 @@ const handleUserLogin = async (user: User | null) => {
       fallbackUseraccountId,
     },
   });
-}
+};
 
 // track authentication
 const authSubscrition = firebaseAuth.onAuthStateChanged(handleUserLogin);
 
 chrome.runtime.onConnect.addListener(async () => {
-  console.log('connected!')
+  console.log("connected!");
 });
 
 chrome.runtime.onMessage.addListener(async (message: ChromeMessage) => {
@@ -152,35 +151,59 @@ chrome.runtime.onMessage.addListener(async (message: ChromeMessage) => {
           },
         });
       });
-      return
+      return;
     }
     const clientId = oauth2.client_id;
     const authParams = new URLSearchParams({
       client_id: clientId,
-      response_type: 'token',
+      response_type: "token",
       redirect_uri: redirectURL,
-      scope: ['email'].join(' '),
+      scope: ["email"].join(" "),
     });
     const authURL = `https://accounts.google.com/o/oauth2/auth?${authParams.toString()}`;
-    chrome.identity.launchWebAuthFlow({ url: authURL, interactive: true }, async (responseUrl) => {
-      if (chrome.runtime.lastError || !responseUrl) {
-        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-          chrome.tabs.sendMessage(tabs[0].id!, {
-            type: ChromeEvents.loginError,
-            payload: {
-              message: `Failed to login - ${chrome.runtime.lastError?.message ?? 'no response url returned'}`,
-            },
-          });
-        });
-        return
-      }
-      
-      const url = new URL(responseUrl);
-      const urlParams = new URLSearchParams(url.hash.slice(1));
-      const params = Object.fromEntries(urlParams.entries()); // access_token, expires_in
+    chrome.identity.launchWebAuthFlow(
+      { url: authURL, interactive: true },
+      async (responseUrl) => {
+        if (chrome.runtime.lastError || !responseUrl) {
+          chrome.tabs.query(
+            { active: true, currentWindow: true },
+            function (tabs) {
+              chrome.tabs.sendMessage(tabs[0].id!, {
+                type: ChromeEvents.loginError,
+                payload: {
+                  message: `Failed to login - ${
+                    chrome.runtime.lastError?.message ??
+                    "no response url returned"
+                  }`,
+                },
+              });
+            }
+          );
+          return;
+        }
 
-      let credential = GoogleAuthProvider.credential(null, params.access_token);
-      await signInWithCredential(firebaseAuth, credential);
+        const url = new URL(responseUrl);
+        const urlParams = new URLSearchParams(url.hash.slice(1));
+        const params = Object.fromEntries(urlParams.entries()); // access_token, expires_in
+
+        let credential = GoogleAuthProvider.credential(
+          null,
+          params.access_token
+        );
+        await signInWithCredential(firebaseAuth, credential);
+      }
+    );
+  }
+
+  // forward message to play video of BEST version
+  if (message.type === ChromeEvents.startVideo) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id!, {
+        type: ChromeEvents.loadWithVideo,
+        payload: {
+          videoId: message.payload,
+        },
+      });
     });
   }
 
@@ -192,21 +215,22 @@ chrome.runtime.onMessage.addListener(async (message: ChromeMessage) => {
   }
 });
 
-chrome.tabs.onUpdated.addListener(
-  function(tabId, changeInfo, tab) {
-    // read changeInfo data and do something with it
-    // like send the new url to contentscripts.js
-    if (changeInfo.url?.includes('video/')) {
-      const match = changeInfo.url.match(/[0-9]+/)
-      if (!match) {
-        return
-      }
-      chrome.tabs.sendMessage(tabId, {
-        type: ChromeEvents.loadWithVideo,
-        payload: {
-          videoId: match[0]
-        }
-      })
-    }
-  }
-);
+// this does not apply to the BEST version of AN
+// chrome.tabs.onUpdated.addListener(
+//   function(tabId, changeInfo, tab) {
+//     // read changeInfo data and do something with it
+//     // like send the new url to contentscripts.js
+//     if (changeInfo.url?.includes('video/')) {
+//       const match = changeInfo.url.match(/[0-9]+/)
+//       if (!match) {
+//         return
+//       }
+//       chrome.tabs.sendMessage(tabId, {
+//         type: ChromeEvents.loadWithVideo,
+//         payload: {
+//           videoId: match[0]
+//         }
+//       })
+//     }
+//   }
+// );

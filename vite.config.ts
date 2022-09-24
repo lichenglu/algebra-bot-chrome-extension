@@ -6,6 +6,8 @@ import { resolve } from "path";
 
 import manifest from "./manifest";
 
+const fontCopyDir = 'assets/fonts'
+
 export default defineConfig({
   build: {
     rollupOptions: {
@@ -36,15 +38,15 @@ export default defineConfig({
       targets: [
         {
           src: 'src/assets/fonts/*.woff',
-          dest: 'assets/fonts'
+          dest: fontCopyDir
         },
         {
           src: 'src/assets/fonts/*.woff2',
-          dest: 'assets/fonts'
+          dest: fontCopyDir
         },
         {
           src: 'src/assets/fonts/*.ttf',
-          dest: 'assets/fonts'
+          dest: fontCopyDir
         },
         {
           src: 'src/injectedScripts/*.js',

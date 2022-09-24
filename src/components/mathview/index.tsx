@@ -36,7 +36,8 @@ const MathWithKeyboardButton = React.memo((props: MathViewProps) => {
     [props.onChange]
   );
 
-  const directory = import.meta.env.DEV ? chrome.runtime?.getURL?.('assets/fonts') : undefined
+  const directory = import.meta.env.DEV ? chrome.runtime?.getURL?.('assets/fonts/') : undefined
+  console.log('directory', directory)
 
   return (
     <Container>
